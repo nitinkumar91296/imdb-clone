@@ -10,13 +10,14 @@ from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
-from imdb_app.api.permissions import AdminOrReadOnly, ReviewUserOrReadOnly
+from imdb_app.api.permissions import IsAdminOrReadOnly, IsReviewUserOrReadOnly
 from imdb_app.api.serializers import ReviewSerializer, StreamPlatformSerializer, WatchListSerializer
 from imdb_app.models import Review, StreamPlatform, WatchList
 
 
 class ReviewCreate(generics.CreateAPIView):
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         return Review.objects.all()
@@ -45,7 +46,7 @@ class ReviewCreate(generics.CreateAPIView):
 class ReviewList(generics.ListAPIView):
     # queryset = Review.objects.all()  # by default it access all review so we have to overwrite it here
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
         pk = self.kwargs['pk']
@@ -55,13 +56,14 @@ class ReviewList(generics.ListAPIView):
 class ReviewDetails(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
-    permission_classes = [ReviewUserOrReadOnly]
+    permission_classes = [IsReviewUserOrReadOnly]
     
 
 # view set
 class StreamPlatformVS(viewsets.ModelViewSet):
     queryset = StreamPlatform.objects.all()
     serializer_class = StreamPlatformSerializer
+    permission_classes = [IsAdminOrReadOnly]
 
 # class StreamPlatformVS(viewsets.ViewSet):
     
@@ -88,6 +90,7 @@ class StreamPlatformVS(viewsets.ModelViewSet):
 #  ====== API Views and Function views =====
 # /stream
 class SteamPlatformListAV(APIView):
+    permission_classes = [IsAdminOrReadOnly]
     
     def get(self, request):
         platform = StreamPlatform.objects.all()
@@ -105,6 +108,7 @@ class SteamPlatformListAV(APIView):
 
 # /stream/<id>
 class StreamPlatformDetailAV(APIView):
+    permission_classes = [IsAdminOrReadOnly]
     
     def get(self, request, pk):       
         try:
@@ -132,6 +136,7 @@ class StreamPlatformDetailAV(APIView):
 
 # /watch/list
 class WatchListAV(APIView):
+    permission_classes = [IsAdminOrReadOnly]
     
     def get(self, request):
         movies = WatchList.objects.all()
@@ -149,6 +154,7 @@ class WatchListAV(APIView):
 
 # /watch/<id>
 class WatchDetailAV(APIView):
+    permission_classes = [IsAdminOrReadOnly]
     
     def get(self, request, pk):
         try:

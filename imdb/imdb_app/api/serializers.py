@@ -34,32 +34,6 @@ class StreamPlatformSerializer(serializers.ModelSerializer):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # ======= General Serializer
 
 # # validator -> passed in model field
