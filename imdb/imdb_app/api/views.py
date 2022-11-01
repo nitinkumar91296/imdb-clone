@@ -1,5 +1,3 @@
-from operator import is_
-from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 # from rest_framework.decorators import api_view
 from rest_framework.views import APIView
@@ -10,14 +8,18 @@ from rest_framework import viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 
+from rest_framework.throttling import UserRateThrottle, AnonRateThrottle, ScopedRateThrottle
+
 from imdb_app.api.permissions import IsAdminOrReadOnly, IsReviewUserOrReadOnly
 from imdb_app.api.serializers import ReviewSerializer, StreamPlatformSerializer, WatchListSerializer
+from imdb_app.api.throttling import ReviewCreateThrottle, ReviweListThrottle
 from imdb_app.models import Review, StreamPlatform, WatchList
 
 
 class ReviewCreate(generics.CreateAPIView):
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ReviewCreateThrottle]
     
     def get_queryset(self):
         return Review.objects.all()
@@ -47,6 +49,7 @@ class ReviewList(generics.ListAPIView):
     # queryset = Review.objects.all()  # by default it access all review so we have to overwrite it here
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ReviweListThrottle]
     
     def get_queryset(self):
         pk = self.kwargs['pk']
@@ -57,6 +60,8 @@ class ReviewDetails(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
     permission_classes = [IsReviewUserOrReadOnly]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_Scope = 'review-detail'
     
 
 # view set
